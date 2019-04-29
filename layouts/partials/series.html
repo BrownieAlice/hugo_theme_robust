@@ -1,0 +1,3 @@
+{{ with .Site.Taxonomies.series }}
+{{ partial "taxonomy.html" (dict "context" $.Site "key" "series" "value" . "baseurl" $.Site.BaseURL) }}
+{{ end }}
