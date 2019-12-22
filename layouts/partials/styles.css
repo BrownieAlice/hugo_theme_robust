@@ -697,11 +697,27 @@ section.footer > header a {
   background-position: center;
 }
 
-{{ range $p := .Site.RegularPages }}
-{{ with $p.Params.thumbnail }}
-.thumb-{{ $p.File.UniqueID }} {
-  background-image: url({{ . | absURL }});
-}
-{{ end }}
-{{ end }}
 
+{{ range $p := .Site.RegularPages }}
+{{ if $p.Params.thumbnail }}
+  {{ $img := $p.Page.Resources.GetMatch $p.Params.thumbnail }}
+  {{ $imgLatest := $img }}
+  {{ if $img }}
+    {{ if eq $img.MediaType.SubType "svg" }}
+      {{ $img = $img.Permalink }}
+      {{ $imgLatest = $imgLatest.Permalink }}
+    {{ else if eq $img.ResourceType "image" }}
+      {{ $img = $img.Fill "804x360" }}
+      {{ $img = $img.Permalink }}
+      {{ $imgLatest = $imgLatest.Fill "90x90" }}
+      {{ $imgLatest = $imgLatest.Permalink }}
+    {{ end }}
+  {{ end }}
+  .thumb-{{ $p.File.UniqueID }} {
+    background-image: url({{ with $img }}{{ . }}{{ else }}{{ $p.Params.thumbnail | absURL }}{{ end }});
+  }
+  .thumb-latest-{{ $p.File.UniqueID }} {
+    background-image: url({{ with $imgLatest }}{{ . }}{{ else }}{{ $p.Params.thumbnail | absURL }}{{ end }});
+  }
+{{ end }}
+{{ end }}
